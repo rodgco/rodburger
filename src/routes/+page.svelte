@@ -1,2 +1,24 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+  import "$lib/chat/types.d";
+  import Chat from '$lib/chat/chat.svelte';
+  
+  /** @type {Message[]} */
+  let messages = [
+    { sender: 'user', content: 'Hello' },
+    { sender: 'assistant', content: 'Hi, how are you doing' },
+    { sender: 'user', content: "I'm doing fine" },
+  ];
+
+</script>
+
+<Chat bind:messages currentUser="user" />
+<div id="orders"></div>
+
+<style>
+  #orders {
+    flex: 0 1 auto;
+    width: 15rem;
+    border: 1px solid var(--range-border-color);
+    border-radius: var(--border-radius);
+  }
+</style>
