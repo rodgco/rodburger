@@ -40,16 +40,28 @@ interface Order {
 }
 
 /** @type {import('./$types').PageServerLoad} */
-export function load({ cookies }) {
+export async function load({ cookies, request }) {
+  /** @type {string} */
+  const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
+  console.log("Lang:", language);
+
 	/** @type {string | undefined} */
 	const sessionid = cookies.get('sessionid') || v4();
+
+  const translatedMessage = language.includes('en') ? initialMessage : await openai.createChatCompletion({
+    messages: [
+      {
+        role: 'user',
+        content: `Translate "${initialMessage}" to ${language}.`
+      }
+    ]}).then(c => c.choices[0].message.content.trim());
 
 	/**@type {Session | undefined } */
 	let session = sessions.find((e) => e.sessionid === sessionid);
 
 	if (!session) {
 		cookies.set('sessionid', sessionid);
-		session = { sessionid, messages: [{ role: 'assistant', content: initialMessage }], orders: [] };
+		session = { sessionid, messages: [{ role: 'assistant', content: translatedMessage }], orders: [] };
 		sessions.push(session);
 	}
 
