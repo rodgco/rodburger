@@ -78,7 +78,7 @@ export const actions = {
 		const session = sessions.find((e) => e.sessionid === sessionid);
 
 		if (!session) {
-			console.log(`Are you with brinqueition with me?!?`);
+			console.log(`Are you with brinqueition with´ me?!?`);
 			return fail(505, { error: 'Are you with brinqueition with me?!?' });
 		}
 		const data = await request.formData();
@@ -119,7 +119,7 @@ export const actions = {
 
 				session.orders.push(json);
 				session.messages = [
-					{ role: 'assistant', content: response.replace('##!@@##', '') },
+					{ role: 'assistant', content: response.replace(SECRET_KEY, '') },
 					{ role: 'assistant', content: await translateMessage(initialMessage, language) }
 				];
 			}
