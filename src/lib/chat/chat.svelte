@@ -1,60 +1,32 @@
 <script>
-  import { onMount, tick } from 'svelte/internal';
-  import { enhance, applyAction } from '$app/forms';
-  import './types.d';
+	import { onMount, tick } from 'svelte/internal';
+	import './types.d';
 
-  /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
-  export let messages = [];
+	/** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
+	export let messages = [];
 
-  /** @type {string} */
-  export let currentUser = 'user';
+	/** @type {string} */
+	export let currentUser = 'user';
 
-  /** @type {HTMLDivElement} */
-  let bubblebox;
+	/** @type {HTMLDivElement} */
+	let bubblebox;
 
-  /** @type {HTMLInputElement} */
-  let input;
+	$: if (messages && bubblebox) {
+		console.log('Scrolling');
+		tick();
+		bubblebox.scrollTop = bubblebox.scrollHeight;
+	}
 
-  $: if (messages && input) {
-    console.log('Scrolling');
-    tick();
-    bubblebox.scrollTop = bubblebox.scrollHeight;
-  }
+	/**
+	 * @param {import('$lib/server/openai').OpenAIChatMessage} message
+	 */
+	function isCurrentUser(message) {
+		return message.role === currentUser;
+	}
 
-  /**
-  * @param {import('$lib/server/openai').OpenAIChatMessage} message
-  */
-  function isCurrentUser(message) {
-    return message.role === currentUser;
-  }
-
-  onMount(() => {
-    bubblebox.scrollTop = bubblebox.scrollHeight;
-    input.focus();
-  });
-
-  function enhancer({ form, data }) {
-    form.children['message'].value = "";
-    form.children['message'].disabled = true;
-
-    const message = /** @type {string} */ data.get('message')?.toString() || "";
-    messages = [
-      ...messages,
-      { role: 'user', content: message },
-      { role: 'assistant', loading: true, content: 'Loading' }
-    ];
-
-    return async ({ result }) => {
-      messages = result.data.session.messages;
-
-      form.children['message'].disabled = false;
-      form.children['message'].focus();
-      // `result` is an `ActionResult` object
-      if (result.type === 'error') {
-        await applyAction(result);
-      }
-    };
-  }
+	onMount(() => {
+		bubblebox.scrollTop = bubblebox.scrollHeight;
+	});
 </script>
 
 <div id="chatbox">
@@ -69,9 +41,6 @@
 			</div>
 		{/each}
 	</div>
-	<form method="POST" use:enhance={enhancer}>
-		<input bind:this={input} type="text" name="message" />
-	</form>
 </div>
 
 <style>
@@ -108,15 +77,5 @@
 		color: var(--primary-inverse);
 		background-color: var(--primary);
 		align-self: flex-end;
-	}
-	form {
-		margin: 0;
-	}
-	input {
-		margin: 0;
-		border-top-left-radius: 0;
-		border-top-right-radius: 0;
-		border-bottom-left-radius: var(--border-radius);
-		border-bottom-right-radius: var(--border-radius);
 	}
 </style>
