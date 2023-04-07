@@ -35,7 +35,7 @@
 			<div
 				class="chat-bubble"
 				class:sent={isCurrentUser(message)}
-				aria-busy={message.loading ? 'true' : 'false'}
+				aria-busy={message.content === "Loading" ? 'true' : 'false'}
 			>
 				{@html message.content.replace('\n', '<br>')}
 			</div>
