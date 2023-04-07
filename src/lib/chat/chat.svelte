@@ -2,7 +2,7 @@
 	import { dispatch_dev, onMount } from 'svelte/internal';
 	import './types.d';
 
-	/** @type {Message[]} */
+	/** @type {OpenAIChatMessage[]} */
 	export let messages = [];
 	export let currentUser = '';
 
@@ -16,11 +16,12 @@
 	 * @param {Message} message
 	 */
 	function isCurrentUser(message) {
-		return message.sender === currentUser;
+		return message.role === currentUser;
 	}
 
 	onMount(() => {
 		bubblebox.scrollTop = bubblebox.scrollHeight;
+    input.focus();
 	});
 
 	function answer() {
@@ -31,7 +32,7 @@
 			{ sender: 'assistant', loading: true, content: 'Working' }
 		];
 		input.value = '';
-		input.focus({ focusVisible: true });
+		input.focus();
 	}
 </script>
 
@@ -43,12 +44,12 @@
 				class:sent={isCurrentUser(message)}
 				aria-busy={message.loading ? 'true' : 'false'}
 			>
-				{message.content}
+				{@html message.content.replace('\n', '<br>')}
 			</div>
 		{/each}
 	</div>
-	<form on:submit={answer}>
-		<input bind:this={input} type="text" />
+	<form method="POST">
+		<input bind:this={input} type="text" name="message" />
 	</form>
 </div>
 
