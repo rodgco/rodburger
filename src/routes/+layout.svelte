@@ -8,6 +8,7 @@
 
 	onMount(() => {
 		dark_mode = window.matchMedia('(prefers-color-scheme:dark)').matches;
+    if (localStorage.getItem('invertMode') === 'true') dark_mode = !dark_mode;
 	});
 
 	/**
@@ -22,6 +23,11 @@
 		return {
 			update(/** @type { "dark" | "light" } */ mode) {
 				html_element.setAttribute('data-theme', mode);
+        if (dark_mode !== window.matchMedia('(prefers-color-scheme:dark)').matches) {
+          localStorage.setItem('invertMode', 'true');
+        } else {
+          localStorage.removeItem('invertMode');
+        }
 			},
 			destroy() {}
 		};
