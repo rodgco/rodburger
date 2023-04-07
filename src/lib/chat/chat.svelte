@@ -1,39 +1,60 @@
 <script>
-	import { dispatch_dev, onMount } from 'svelte/internal';
-	import './types.d';
+  import { onMount, tick } from 'svelte/internal';
+  import { enhance, applyAction } from '$app/forms';
+  import './types.d';
 
-	/** @type {OpenAIChatMessage[]} */
-	export let messages = [];
-	export let currentUser = '';
+  /** @type {OpenAIChatMessage[]} */
+  export let messages = [];
 
-	/** @type {HTMLDivElement} */
-	let bubblebox;
+  /** @type {string} */
+  export let currentUser = 'user';
 
-	/** @type {HTMLInputElement} */
-	let input;
+  /** @type {HTMLDivElement} */
+  let bubblebox;
 
-	/**
-	 * @param {Message} message
-	 */
-	function isCurrentUser(message) {
-		return message.role === currentUser;
-	}
+  /** @type {HTMLInputElement} */
+  let input;
 
-	onMount(() => {
-		bubblebox.scrollTop = bubblebox.scrollHeight;
+  $: if (messages && input) {
+    console.log('Scrolling');
+    tick();
+    bubblebox.scrollTop = bubblebox.scrollHeight;
+  }
+
+  /**
+  * @param {OpenAIChatMessage} message
+  */
+  function isCurrentUser(message) {
+    return message.role === currentUser;
+  }
+
+  onMount(() => {
+    bubblebox.scrollTop = bubblebox.scrollHeight;
     input.focus();
-	});
+  });
 
-	function answer() {
-		if (!input.value || input.value === '') return;
-		messages = [
-			...messages,
-			{ sender: 'user', content: input.value || '???' },
-			{ sender: 'assistant', loading: true, content: 'Working' }
-		];
-		input.value = '';
-		input.focus();
-	}
+  function enhancer({ form, data }) {
+    form.children['message'].value = "";
+    form.children['message'].disabled = true;
+
+    const message = /** @type {string} */ data.get('message')?.toString() || "";
+    messages = [
+      ...messages,
+      { role: 'user', content: message },
+      { role: 'assistant', loading: true, content: 'Loading' }
+    ];
+
+    return async ({ result }) => {
+      messages = result.data.session.messages;
+
+      form.children['message'].disabled = false;
+      form.children['message'].focus();
+      // `result` is an `ActionResult` object
+      if (result.type === 'error') {
+        await applyAction(result);
+      }
+    };
+  }
 </script>
 
 <div id="chatbox">
@@ -48,7 +69,7 @@
 			</div>
 		{/each}
 	</div>
-	<form method="POST">
+	<form method="POST" use:enhance={enhancer}>
 		<input bind:this={input} type="text" name="message" />
 	</form>
 </div>

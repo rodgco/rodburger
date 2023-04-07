@@ -5,11 +5,11 @@
 	/** @type {import('./$types').PageData} */
 	export let data;
 
-	$: ({ /** {OpenAIChatMessage[]} */ messages } = data);
+	$: ({ messages } = data);
 	$: ({ orders } = data);
 </script>
 
-<Chat bind:messages currentUser="user" />
+<Chat {messages} currentUser="user" />
 <div id="orders">
 	{#each orders as order}
 		<div class="order">
@@ -32,7 +32,8 @@
 	.order {
 		margin: 0.25rem;
     padding: 0.25rem;
-		background-color: yellow;
+		background-color: var(--primary);
+    color: var(--primary-inverse)
 	}
 
 	.order p {

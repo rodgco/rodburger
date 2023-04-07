@@ -4,27 +4,6 @@ import { openai } from '$lib/server/openai';
 
 import '$lib/chat/types.d';
 
-/**
-* @typedef Item
-* @property {string} item
-* @property {number} qty
-* @property {string[]} extras
-*/
-
-/**
-* @typedef Order
-* @property {string} name
-* @property {string} message
-* @property {Item[]} items
-*/
-
-/**
-* @typedef Session
-* @property {string} sessionid
-* @property {OpenAIChatMessage[]} messages
-* @property {Order[]} orders
-*/
-
 /** @type {Session[]} */
 const sessions = [];
 
@@ -130,7 +109,7 @@ export const actions = {
     }
 
 
-		return { success: true };
+		return { success: true, session };
 
 	}
 };
