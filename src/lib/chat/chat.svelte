@@ -3,7 +3,7 @@
   import { enhance, applyAction } from '$app/forms';
   import './types.d';
 
-  /** @type {OpenAIChatMessage[]} */
+  /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
   export let messages = [];
 
   /** @type {string} */
@@ -22,7 +22,7 @@
   }
 
   /**
-  * @param {OpenAIChatMessage} message
+  * @param {import('$lib/server/openai').OpenAIChatMessage} message
   */
   function isCurrentUser(message) {
     return message.role === currentUser;

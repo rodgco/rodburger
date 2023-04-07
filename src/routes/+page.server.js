@@ -11,9 +11,9 @@ const sessions = [];
 const finalMessage = "Rod's Burger, the best Burger served by AI.";
 
 /** @type {string} */
-const initialMessage = `Welcome to ${finalMessage} How may I help you?`
+const initialMessage = `Welcome to ${finalMessage} How may I help you?`;
 
-/** @type {OpenAIChatMessage} */
+/** @type {import('$lib/server/openai').OpenAIChatMessage} */
 const systemMessage = {
 	role: 'system',
 	content: `You are a helpful attendant at Rod's Burgers. Our Chef love to receive nice messages from our customers. You're only supposed to answer questions related to our products. Everything else you should inform the customer that you can't inform about the topic. Try to sell an extra product. To close the order you need to get the customer name and a nice message to the Chef.
@@ -27,46 +27,55 @@ In our catalog we offer:
 `
 };
 
-/** @type {OpenAIChatMessage} */
+/** @type {import('$lib/server/openai').OpenAIChatMessage} */
 const formatJSONMessage = {
-  role: 'user',
-  content: `Format the my order as JSON. Do not translate the JSON field names. Don't include any other message, just the JSON. JSON must conform with this typescript interface:
+	role: 'user',
+	content: `Format the my order as JSON. Do not translate the JSON field names. Don't include any other message, just the JSON. JSON must conform with this typescript interface:
 
 interface Order {
   "name": string;
   "message": string;
   "items": {"item": string; "qty": number; "extras": string[]};
 }`
-}
+};
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies, request }) {
-  /** @type {string} */
-  const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
-  console.log("Lang:", language);
+	/** @type {string} */
+	const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
+	console.log('Lang:', language);
 
 	/** @type {string | undefined} */
 	const sessionid = cookies.get('sessionid') || v4();
 
-  const translatedMessage = language.includes('en') ? initialMessage : await openai.createChatCompletion({
-    messages: [
-      {
-        role: 'user',
-        content: `Translate "${initialMessage}" to ${language}.`
-      }
-    ]}).then(c => c.choices[0].message.content.trim());
+	const translatedMessage = language.includes('en')
+		? initialMessage
+		: await openai
+				.createChatCompletion({
+					messages: [
+						{
+							role: 'user',
+							content: `Translate "${initialMessage}" to ${language}.`
+						}
+					]
+				})
+				.then((c) => c.choices[0].message.content.trim());
 
 	/**@type {Session | undefined } */
 	let session = sessions.find((e) => e.sessionid === sessionid);
 
 	if (!session) {
 		cookies.set('sessionid', sessionid);
-		session = { sessionid, messages: [{ role: 'assistant', content: translatedMessage }], orders: [] };
+		session = {
+			sessionid,
+			messages: [{ role: 'assistant', content: translatedMessage }],
+			orders: []
+		};
 		sessions.push(session);
 	}
 
 	const messages = session.messages;
-  const orders = session.orders;
+	const orders = session.orders;
 
 	return { messages, orders };
 }
@@ -82,12 +91,15 @@ export const actions = {
 			return fail(505, { error: 'Are you with brinqueition with me?!?' });
 		}
 		const data = await request.formData();
-		const message = /** @type {string} */ data.get('message')?.toString() || "";
+		const message = /** @type {string} */ data.get('message')?.toString() || '';
 
-    if (message.length > 100) {
-      session.messages.push({ role: 'assistant', content: 'Your last message was too long, keep it under 100 characters, please' });
-      return { success: false }
-    }
+		if (message.length > 100) {
+			session.messages.push({
+				role: 'assistant',
+				content: 'Your last message was too long, keep it under 100 characters, please'
+			});
+			return { success: false };
+		}
 
 		session.messages.push({ role: 'user', content: message });
 
@@ -98,30 +110,28 @@ export const actions = {
 			user: sessionid
 		});
 
-    const response = completion.choices[0].message.content.trim();
+		const response = completion.choices[0].message.content.trim();
 
-    session.messages.push({
-      role: 'assistant',
-      content: response 
-    });
+		session.messages.push({
+			role: 'assistant',
+			content: response
+		});
 
-    if (response.includes("##!@@##")) {
-      const jsonCompletion = await openai.createChatCompletion({
-        messages: [...messages, formatJSONMessage],
-        user: sessionid
-      });
+		if (response.includes('##!@@##')) {
+			const jsonCompletion = await openai.createChatCompletion({
+				messages: [...messages, formatJSONMessage],
+				user: sessionid
+			});
 
-      const json = JSON.parse(jsonCompletion.choices[0].message.content.trim());
+			const json = JSON.parse(jsonCompletion.choices[0].message.content.trim());
 
-      session.orders.push(json);
-      session.messages = [
-        { role: 'assistant', content: response.replace('##!@@##', '') },
-        { role: 'assistant', content: initialMessage }
-      ]
-    }
-
+			session.orders.push(json);
+			session.messages = [
+				{ role: 'assistant', content: response.replace('##!@@##', '') },
+				{ role: 'assistant', content: initialMessage }
+			];
+		}
 
 		return { success: true, session };
-
 	}
 };

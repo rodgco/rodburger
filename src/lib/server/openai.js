@@ -1,12 +1,60 @@
 import { OPENAI_API_KEY } from '$env/static/private';
 import { createParser } from 'eventsource-parser';
 
-import '$lib/chat/types.d';
+/**
+ * Represents a completion request for the OpenAI API.
+ *
+ * @typedef {Object} OpenAICompletionRequest
+ * @property {string} model - The name of the language model to use.
+ * @property {string} prompt - The input prompt to generate completions for.
+ * @property {string} [suffix] - The text to append to the prompt before generating completions.
+ * @property {number} [max_tokens] - The maximum number of tokens to generate in the completion.
+ * @property {number} [temperature] - Controls the "creativity" of the generated text, with higher values resulting in more creative output.
+ * @property {number} [top_p] - Controls the diversity of the generated text by generating completions with a cumulative probability of up to `top_p`.
+ * @property {number} [n] - The number of completions to generate.
+ * @property {boolean} [stream] - Whether to stream the results back as they are generated, rather than waiting for all completions to be generated.
+ * @property {number} [logprobs] - Controls the amount of log probability data returned with the response.
+ * @property {boolean} [echo] - Whether to include the input prompt in the response.
+ * @property {string|string[]} stop - A string or an array of strings indicating tokens that should prompt the model to stop generating completions.
+ * @property {number} [presence_penalty] - Controls the degree to which the model considers whether a token has already been generated in previous tokens.
+ * @property {number} [frequency_penalty] - Controls the degree to which the model considers the frequency of a token in the training data when generating completions.
+ * @property {number} [best_of] - The number of candidates to generate completions from, with the highest log probabilities.
+ * @property {*} [logit_bias] - A bias vector to use when generating completions.
+ * @property {string} [user] - An optional identifier for the user making the request.
+ */
+
+/**
+ * Represents a chat message.
+ *
+ * @typedef {Object} OpenAIChatMessage
+ * @property {('system'|'user'|'assistant')} role - The role of the message sender, which can be "system", "user", or "assistant".
+ * @property {string} content - The content of the message.
+ */
+
+
+/**
+ * Represents a request for OpenAI chat completion.
+ *
+ * @typedef {Object} OpenAIChatCompletionRequest
+ * @property {string} model - The name of the model to use for completion.
+ * @property {OpenAIChatMessage[]} messages - The list of chat messages to use as prompt.
+ * @property {number} [temperature] - Controls the randomness of the generated text.
+ * @property {number} [top_p] - Controls the diversity of the generated text.
+ * @property {number} [n] - How many completions to generate for each prompt.
+ * @property {boolean} [stream] - Whether to stream back partial messages as they are generated.
+ * @property {string|string[]} [stop] - Up to 4 sequences where the API will stop generating further tokens.
+ * @property {number} [max_tokens] - The maximum number of tokens to generate in the completion.
+ * @property {number} [presence_penalty] - Controls the degree to which model should favor generating tokens that are similar to the context.
+ * @property {number} [frequency_penalty] - Controls the degree to which model should favor generating tokens that are less common in the training data.
+ * @property {*} [logit_bias] - Controls the likelihood of generating tokens that match a given prompt.
+ * @property {string} [user] - The ID of the user.
+ */
 
 function openaiAPI() {
-	var base_url = 'https://api.openai.com/v1';
-	var bearer = 'Bearer ' + OPENAI_API_KEY;
+	const base_url = 'https://api.openai.com/v1';
+	const bearer = 'Bearer ' + OPENAI_API_KEY;
 	return {
+    /** @param { Partial<OpenAICompletionRequest> } request */
 		createCompletion: async (request) => {
 			const body = JSON.stringify({
 				prompt: 'Once upon a time',
@@ -34,6 +82,7 @@ function openaiAPI() {
 			const data = await res.json();
 			return data;
 		},
+    /** @param { Partial<OpenAIChatCompletionRequest> } request */
 		createChatCompletion: async (request) => {
 			const body = JSON.stringify({
 				model: 'gpt-4',
@@ -61,6 +110,7 @@ function openaiAPI() {
       console.log('tokens:', data.usage.total_tokens);
 			return data;
 		},
+    /** @param { Partial<OpenAIChatCompletionRequest> } request */
     createChatCompletionStream: async (request) => {
 			const body = JSON.stringify({
 				model: 'gpt-4',
@@ -87,6 +137,7 @@ function openaiAPI() {
         body
       });
 
+      /** @type { ReadableStream } */
       const stream = new ReadableStream({
         async start(controller) {
           function onParse(event) {
