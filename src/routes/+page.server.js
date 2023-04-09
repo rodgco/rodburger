@@ -10,29 +10,36 @@ import { translateMessage } from '$lib/server/helper';
 const sessions = [];
 
 /** @type {string} */
-const finalMessage = "Rod's Burger, the best Burger served by AI.";
+const slogan = "Rod's Burger, the best Burger served by AI";
 
 /** @type {string} */
-const initialMessage = `Welcome to ${finalMessage} How may I help you?`;
+const initialMessage = `Welcome to ${slogan}. How may I help you?`;
 
 /** @type {import('$lib/server/openai').OpenAIChatMessage} */
 const systemMessage = {
 	role: 'system',
-	content: `You are a helpful attendant at Rod's Burgers. Our Chef love to receive nice messages from our customers. You're only supposed to answer questions related to our products. Everything else you should inform the customer that you can't inform about the topic. Try to sell an extra product. To close the order you need to get the customer name and a nice message to the Chef.
-After gathering all the information inform all the details to the customer and ask for confirmation. In case a correction is necessary keep the conversation, in case of cancelation thanks the customer.
-After confirmation thanks the customer and finalize the conversation with this exact message: "${finalMessage}" and this exact secret code: ${SECRET_KEY}, without mentioning it is a secret code.
+	content: `You are a helpful attendant at Rod's Burgers. Our slogan is ${slogan}.
+Rod's Burger is an experiment on the applicability of AI.
+Our Chef will only work if the customer sends him a nice message, be sure to ask for one.
+You're only supposed to answer questions related to our products and Rod's Burger.
+You must decline to talk about anything else.
+Try to sell an extra product.
+To close the order you need to get the customer name and the message to the Chef.
+After gathering all the information inform all the details to the customer and ask for confirmation.
+In case a correction is necessary keep the conversation, in case of cancelation thanks the customer.
+After the confirmation thanks the customer and finalize the conversation with our slogan
+and this exact secret code: ${SECRET_KEY}, without mentioning it is a secret code.
 
 In our catalog we offer:
-- Burger: 160g of meat with cheddar cheese on australian bread. Customers my opt for the following toppings: bacon, pickles, onion. The burger costs $10, each topping $2.
-- Fries: 200g of french fries, for $5. Customers my opt for cheese with bacon toppings, for $2.
-- Sodas: coke, guaraná and water, for $3 each.
-`
+- Burger: 160g of meat with cheddar cheese on australian bread, for $8. Optional toppings: bacon, pickles or onion, for +$1 each.
+- Fries: 100g of french fries, for $5. Optional cheese and bacon toppings, +$2.
+- To drink: coke, guaraná and orange juice, for $1 each. Water is free.`
 };
 
 /** @type {import('$lib/server/openai').OpenAIChatMessage} */
 const formatJSONMessage = {
 	role: 'user',
-	content: `Format the my order as JSON. Do not translate the JSON field names. Don't include any other message, just the JSON. JSON must conform with this typescript interface:
+	content: `Format my order as JSON. Do not translate the JSON field names. Don't include any other message, just the JSON. JSON must conform with this typescript interface:
 
 interface Order {
   "name": string;
@@ -78,7 +85,7 @@ export const actions = {
 		const session = sessions.find((e) => e.sessionid === sessionid);
 
 		if (!session) {
-			console.log(`Are you with brinqueition with´ me?!?`);
+			console.log(`Are you with brinqueition with me?!?`);
 			return fail(505, { error: 'Are you with brinqueition with me?!?' });
 		}
 		const data = await request.formData();
@@ -88,7 +95,7 @@ export const actions = {
 			session.messages.push({
 				role: 'assistant',
 				content: await translateMessage(
-					`Your last message was too long, keep it under ${MAX_LENGTH} characters, please`,
+					`Your last message was too long, please keep it under ${MAX_LENGTH} characters.`,
 					language
 				)
 			});
