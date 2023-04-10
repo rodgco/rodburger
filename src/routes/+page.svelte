@@ -12,9 +12,6 @@
 	/** @type {HTMLInputElement} */
 	let input;
 
-	/** @type {HTMLDivElement} */
-	let bubblebox;
-
 	onMount(() => {
 		input.focus();
 	});
@@ -51,7 +48,7 @@
     <form method="POST" use:enhance={enhancer}>
       <input bind:this={input} type="text" name="message" />
     </form>
-		<div id="bubblebox" bind:this={bubblebox}>
+		<div id="bubblebox">
 			{#each messages as message}
 				<div
 					class="chat-bubble"
@@ -87,7 +84,7 @@
     height: 300px;
 	}
 	#chat {
-		flex: 2 0 auto;
+		flex: 1 0 auto;
 		align-self: stretch;
 		display: flex;
     flex-direction: column-reverse;
