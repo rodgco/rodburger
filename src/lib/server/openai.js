@@ -49,11 +49,31 @@ import { createParser } from 'eventsource-parser';
  * @property {string} [user] - The ID of the user.
  */
 
+/**
+ * Represents a response from the OpenAI chat endpoint.
+ *
+ * @typedef {Object} OpenAIChatCompletionResponse
+ * @property {string} id - The identifier of the completion request.
+ * @property {string} object - The object type, which is always 'chat.completion'.
+ * @property {number} created - The Unix timestamp (in seconds) when the request was created.
+ * @property {string} model - The name of the model used for the request.
+ * @property {Object} usage - The number of tokens used for the prompt, completion, and total.
+ * @property {number} usage.prompt_tokens - The number of tokens used for the prompt.
+ * @property {number} usage.completion_tokens - The number of tokens used for the completion.
+ * @property {number} usage.total_tokens - The total number of tokens used.
+ * @property {Object[]} choices - An array of possible completions, each containing a message and finish reason.
+ * @property {OpenAIChatMessage} choices[].message - The message object containing the bot's response.
+ * @property {string} choices[].finish_reason - The reason why the completion finished, e.g. 'stop' or 'max_tokens'.
+ * @property {number} choices[].index - The index of the choice in the array.
+ */
+
 function openaiAPI() {
 	const base_url = 'https://api.openai.com/v1';
 	const bearer = 'Bearer ' + OPENAI_API_KEY;
 	return {
-		/** @param { Partial<OpenAICompletionRequest> } request */
+		/**
+		 * @param {Partial<OpenAICompletionRequest>} request
+		 */
 		createCompletion: async (request) => {
 			const body = JSON.stringify({
 				prompt: 'Once upon a time',
@@ -81,7 +101,10 @@ function openaiAPI() {
 			const data = await res.json();
 			return data;
 		},
-		/** @param { Partial<OpenAIChatCompletionRequest> } request */
+		/**
+		 * @param { Partial<OpenAIChatCompletionRequest> } request
+		 * @returns {Promise<OpenAIChatCompletionResponse>}
+		 */
 		createChatCompletion: async (request) => {
 			const body = JSON.stringify({
 				model: 'gpt-4',
@@ -103,12 +126,19 @@ function openaiAPI() {
 				const err = await res.text();
 				console.log(err);
 				return {
+					id: 'chat-no-completion',
+					object: 'chat.completion',
+					created: 1677649420,
+					model: request.model || 'gpt-4',
+					usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
 					choices: [
 						{
 							message: {
 								role: 'assistant',
-								content: "It seems we're busy at the kitchen right now, try again later."
-							}
+								content: "It seems we're busy at the kitchen right now, please try again later."
+							},
+							finish_reason: 'null',
+							index: 0
 						}
 					]
 				};
@@ -148,6 +178,7 @@ function openaiAPI() {
 			/** @type { ReadableStream } */
 			const stream = new ReadableStream({
 				async start(controller) {
+          /** @param {any} event */
 					function onParse(event) {
 						if (event.type === 'event') {
 							const { data } = event;
@@ -177,7 +208,7 @@ function openaiAPI() {
 					// this ensures we properly read chunks and invoke an event for each SSE event stream
 					const parser = createParser(onParse);
 					// https://web.dev/streams/#asynchronous-iteration
-					for await (const chunk of res.body) {
+					for await (const chunk of res?.body) {
 						parser.feed(decoder.decode(chunk));
 					}
 				}

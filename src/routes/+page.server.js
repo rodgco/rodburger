@@ -1,13 +1,8 @@
-import { fail } from '@sveltejs/kit';
-import { v4 } from 'uuid';
 import { openai } from '$lib/server/openai';
 import { MAX_LENGTH, SECRET_KEY } from '$env/static/private';
 
 import '$lib/chat/types.d';
 import { translateMessage } from '$lib/server/helper';
-
-/** @type {Session[]} */
-const sessions = [];
 
 /** @type {string} */
 const slogan = "Rod's Burger, the best Burger served by AI";
@@ -26,9 +21,10 @@ You must decline to talk about anything else.
 Try to sell an extra product.
 To close the order you need to get the customer name and the message to the Chef.
 After gathering all the information inform all the details to the customer and ask for confirmation.
+If the user provides all the required information in a single request, proceed without confirmation and don't try to sell anything else.
 In case a correction is necessary keep the conversation, in case of cancelation thanks the customer.
 After the confirmation thanks the customer and finalize the conversation with our slogan
-and this exact secret code: ${SECRET_KEY}, without mentioning it is a secret code.
+and this exact secret code: ${SECRET_KEY}, never mention it is a secret code.
 
 In our catalog we offer:
 - Burger: 160g of meat with cheddar cheese on australian bread, for $8. Optional toppings: bacon, pickles or onion, for +$1 each.
@@ -49,50 +45,31 @@ interface Order {
 };
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ cookies, request }) {
+export async function load({ request }) {
 	/** @type {string} */
 	const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
-
-	/** @type {string | undefined} */
-	const sessionid = cookies.get('sessionid') || v4();
-
+	/** @type {string} */
 	const translatedMessage = await translateMessage(initialMessage, language);
+  /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
+	const messages = [{ role: 'assistant', content: translatedMessage }];
 
-	/**@type {Session | undefined } */
-	let session = sessions.find((e) => e.sessionid === sessionid);
-
-	if (!session) {
-		cookies.set('sessionid', sessionid);
-		session = {
-			sessionid,
-			messages: [{ role: 'assistant', content: translatedMessage }],
-			orders: []
-		};
-		sessions.push(session);
-	}
-
-	const messages = session.messages;
-	const orders = session.orders;
-
-	return { messages, orders };
+	return { messages };
 }
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-	default: async ({ cookies, request }) => {
+	default: async ({ request }) => {
+    /** @type {string} */
 		const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
-		const sessionid = cookies.get('sessionid');
-		const session = sessions.find((e) => e.sessionid === sessionid);
-
-		if (!session) {
-			console.log(`Are you with brinqueition with me?!?`);
-			return fail(505, { error: 'Are you with brinqueition with me?!?' });
-		}
+    /** @type {FormData} */
 		const data = await request.formData();
-		const message = /** @type {string} */ data.get('message')?.toString() || '';
+    /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
+    const messages = JSON.parse(data.get('conversation')?.toString() || "[]");
+    /** @type {string} */
+		const message = data.get('message')?.toString() || '';
 
 		if (message.length > parseInt(MAX_LENGTH)) {
-			session.messages.push({
+			messages.push({
 				role: 'assistant',
 				content: await translateMessage(
 					`Your last message was too long, please keep it under ${MAX_LENGTH} characters.`,
@@ -100,37 +77,42 @@ export const actions = {
 				)
 			});
 		} else {
-			session.messages.push({ role: 'user', content: message });
+      // Prefix System Message
+      messages.unshift(systemMessage);
+      // Append user message
+			messages.push({ role: 'user', content: message });
 
-			const messages = [systemMessage, ...session.messages];
-
+      /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
 			const completion = await openai.createChatCompletion({
 				messages,
-				user: sessionid
 			});
 
+    /** @type {string} */
 			const response = completion.choices[0].message.content.trim();
 
-			session.messages.push({
-				role: 'assistant',
-				content: response
-			});
-
 			if (response.includes(SECRET_KEY)) {
+        /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
 				const jsonCompletion = await openai.createChatCompletion({
 					messages: [...messages, formatJSONMessage],
-					user: sessionid
 				});
 
-				const json = JSON.parse(jsonCompletion.choices[0].message.content.trim());
+				const json = jsonCompletion?.choices[0].message.content.trim();
 
-				session.orders.push(json);
-				session.messages = [
+				messages.push(
 					{ role: 'assistant', content: response.replace(SECRET_KEY, '') },
+          { role: 'assistant', content: `JSON: ${json}`},
 					{ role: 'assistant', content: await translateMessage(initialMessage, language) }
-				];
-			}
-		}
-		return { success: true, session };
+        );
+      } else {
+        messages.push(
+          { role: 'assistant', content: response }
+        );
+      }
+    }
+
+    // Remove system message
+    messages.shift();
+
+		return { success: true, messages };
 	}
 };

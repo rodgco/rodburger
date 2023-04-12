@@ -38,7 +38,7 @@
 
 <div id="outter">
 	<header>
-		<h1>rodburger</h1>
+		<h1><img src="rodburger.svg" alt="A burger"/></h1>
 		<nav>
 			<ul>
 				<li><a href="/about">about</a></li>
@@ -88,6 +88,9 @@
 		color: var(--primary);
 		margin: 0;
 	}
+  header img {
+    height: 2rem;
+  }
 	footer {
 		width: 100%;
 		text-align: center;

@@ -1,13 +1,18 @@
 <script>
 	import '$lib/chat/types.d';
+  import { onMount } from 'svelte';
 	import { enhance, applyAction } from '$app/forms';
-	import { onMount } from 'svelte';
+  import Conversation from '$lib/chat/store';
+	import { stringify } from 'uuid';
 
 	/** @type {import('./$types').PageData} */
 	export let data;
 
-	$: ({ messages } = data);
-	$: ({ orders } = data);
+  const conversation = new Conversation({
+    session_id: "",
+    messages: data.messages,
+    status: "open"
+  })
 
 	/** @type {HTMLInputElement} */
 	let input;
@@ -21,20 +26,18 @@
 		input.value = '';
 		input.disabled = true;
 
-		const message = /** @type {string} */ data.get('message')?.toString() || '';
-		messages = [
-			...messages,
-			{ role: 'user', content: message },
-			{ role: 'assistant', content: 'Loading' }
-		];
+    /** @type {string} */
+		const message =  data.get('message')?.toString() || '';
+    conversation.addMessage({ role: 'user', content: message });
+    conversation.addMessage({ role: 'assistant', content: 'Loading' });
 
 		return async ({ result }) => {
 			// `result` is an `ActionResult` object
 			if (result.type === 'error') {
 				await applyAction(result);
 			} else if (result.type === 'success') {
-				messages = result.data?.session?.messages || [];
-				orders = result.data?.session?.orders || [];
+        console.log("Result", result);
+        conversation.replaceMessages(result.data.messages);
 
 				input.disabled = false;
 				input.focus();
@@ -46,30 +49,27 @@
 <main>
 	<div id="chat">
     <form method="POST" use:enhance={enhancer}>
+      <input type="hidden" name="conversation" value={JSON.stringify($conversation.messages)} />
       <input bind:this={input} type="text" name="message" />
     </form>
 		<div id="bubblebox">
-			{#each messages as message}
-				<div
-					class="chat-bubble"
-					class:sent={message.role === 'user'}
-					aria-busy={message.content === 'Loading' ? 'true' : 'false'}
-				>
-					{@html message.content.replace('\n', '<br>')}
-				</div>
+			{#each $conversation.messages as message}
+        {#if message.content.startsWith('JSON:')}
+          {@const order = JSON.parse(message.content.substring(6))}
+          <div class="order">
+            {order.name} - {order.message}
+          </div>
+        {:else}
+          <div
+					  class="chat-bubble"
+					  class:sent={message.role === 'user'}
+					  aria-busy={message.content === 'Loading' ? 'true' : 'false'}
+  				>
+	  				{@html message.content.replace('\n', '<br>')}
+		  		</div>
+        {/if}
 			{/each}
 		</div>
-	</div>
-	<div id="orders">
-		{#each orders as order}
-			<div class="order">
-				<p>Customer: <span>{order.name}</span></p>
-				{#each order.items as item}
-					<p>{item.qty} - {item.item} {item.extras}</p>
-				{/each}
-				<div>{order.message}</div>
-			</div>
-		{/each}
 	</div>
 </main>
 
@@ -119,6 +119,17 @@
 		background-color: var(--primary);
 		align-self: flex-end;
 	}
+  .order {
+    color: var(--primary-inverse);
+    background-color: yellow;
+    align-self: center;
+    border-top: 4px dotted orange;
+    border-bottom: 4px dotted orange;
+    border-left: 4px solid orange;
+    border-right: 4px solid orange;
+    padding: 0.75rem 1.25rem;
+    margin: 0.25rem 0; 
+  }
   form {
     margin: 0;
   }
@@ -126,30 +137,4 @@
     margin: 0;
     border-radius: var(--border-radius);
   }
-	#orders {
-		flex: 1 1 auto;
-		width: 15rem;
-		border: 1px solid var(--range-border-color);
-		border-radius: var(--border-radius);
-	}
-	.order {
-		margin: 0.25rem;
-		padding: 0.25rem;
-		background-color: var(--primary);
-		color: var(--primary-inverse);
-	}
-
-	.order p {
-		font-size: small;
-		font-family: monospace;
-		margin: 0;
-	}
-
-	.order p span {
-		font-weight: bold;
-	}
-	.order div {
-		font-size: medium;
-		text-align: center;
-	}
 </style>
