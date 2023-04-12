@@ -37,6 +37,9 @@ devDependencies:
   showdown:
     specifier: ^2.1.0
     version: 2.1.0
+  svelegante:
+    specifier: ^0.2.7
+    version: 0.2.7(svelte@3.58.0)
   svelte:
     specifier: ^3.58.0
     version: 3.58.0
@@ -2147,6 +2150,15 @@ packages:
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+    dev: true
+
+  /svelegante@0.2.7(svelte@3.58.0):
+    resolution: {integrity: sha512-gGXjX1JL8FLRT3JGzio3Mnap0LAjPA2RHRmRAOhcEflBYAoIyBhjozOSfNDgS+CbVs0DH3ZzDy7pehkEiukSIA==}
+    peerDependencies:
+      svelte: ^3.54.0
+    dependencies:
+      svelegante: 'link:'
+      svelte: 3.58.0
     dev: true
 
   /svelte-check@3.2.0(svelte@3.58.0):
