@@ -58,61 +58,86 @@ export async function load({ request }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-	default: async ({ request }) => {
+  default: async ({ request }) => {
     /** @type {string} */
-		const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
+    const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
     /** @type {FormData} */
-		const data = await request.formData();
+    const data = await request.formData();
     /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
     const messages = JSON.parse(data.get('conversation')?.toString() || "[]");
     /** @type {string} */
-		const message = data.get('message')?.toString() || '';
+    const message = data.get('message')?.toString() || '';
 
-		if (message.length > parseInt(MAX_LENGTH)) {
-			messages.push({
-				role: 'assistant',
-				content: await translateMessage(
-					`Your last message was too long, please keep it under ${MAX_LENGTH} characters.`,
-					language
-				)
-			});
-		} else {
+    if(message.startsWith("TEST")) {
+      // Prefix System Message
+      messages.unshift(systemMessage);
+
+      // Append user message
+      messages.push(
+        { role: 'user', content: message }
+      );
+
+      ///** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
+      //const jsonCompletion = await openai.createChatCompletion({
+      //  messages: [...messages, formatJSONMessage],
+      //});
+
+      // const json = jsonCompletion?.choices[0].message.content.trim();
+      const json = '{"name":"Rodrigo","message":"put love in it","items":[{"item":"Burger","qty":1,"extras":[]},{"item":"Coke","qty": 1,"extras": []}]}';
+      console.log(json);
+
+      messages.push(
+        { role: 'assistant', content: 'Thank you!' },
+        { role: 'assistant', content: `JSON: ${json}`}
+      );
+      // Remove System Message
+      messages.shift();
+    } else if (message.length > parseInt(MAX_LENGTH)) {
+      messages.push({
+        role: 'assistant',
+        content: await translateMessage(
+          `Your last message was too long, please keep it under ${MAX_LENGTH} characters.`,
+          language
+        )
+      });
+    } else {
       // Prefix System Message
       messages.unshift(systemMessage);
       // Append user message
-			messages.push({ role: 'user', content: message });
+      messages.push({ role: 'user', content: message });
 
       /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
-			const completion = await openai.createChatCompletion({
-				messages,
-			});
+      const completion = await openai.createChatCompletion({
+        messages,
+      });
 
-    /** @type {string} */
-			const response = completion.choices[0].message.content.trim();
+      /** @type {string} */
+      const response = completion.choices[0].message.content.trim();
 
-			if (response.includes(SECRET_KEY)) {
+      if (response.includes(SECRET_KEY)) {
         /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
-				const jsonCompletion = await openai.createChatCompletion({
-					messages: [...messages, formatJSONMessage],
-				});
+        const jsonCompletion = await openai.createChatCompletion({
+          messages: [...messages, formatJSONMessage],
+        });
 
-				const json = jsonCompletion?.choices[0].message.content.trim();
+        const json = jsonCompletion?.choices[0].message.content.trim();
 
-				messages.push(
-					{ role: 'assistant', content: response.replace(SECRET_KEY, '') },
+        messages.push(
+          { role: 'assistant', content: response.replace(SECRET_KEY, '') },
           { role: 'assistant', content: `JSON: ${json}`},
-					{ role: 'assistant', content: await translateMessage(initialMessage, language) }
+          { role: 'assistant', content: await translateMessage(initialMessage, language) }
         );
       } else {
         messages.push(
           { role: 'assistant', content: response }
         );
       }
+
+      // Remove System Message
+      messages.shift();
     }
 
-    // Remove system message
-    messages.shift();
 
-		return { success: true, messages };
-	}
+    return { success: true, messages };
+  }
 };

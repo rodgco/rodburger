@@ -3,7 +3,6 @@
   import { onMount } from 'svelte';
 	import { enhance, applyAction } from '$app/forms';
   import Conversation from '$lib/chat/store';
-	import { stringify } from 'uuid';
 
 	/** @type {import('./$types').PageData} */
 	export let data;
@@ -57,7 +56,11 @@
         {#if message.content.startsWith('JSON:')}
           {@const order = JSON.parse(message.content.substring(6))}
           <div class="order">
-            {order.name} - {order.message}
+            <title>{order.name}</title>
+            {#each order.items as item}
+              <p>{item.qty} - {item.item} [{item.extras}]</p>
+            {/each}
+            <footer>{order.message}</footer>
           </div>
         {:else}
           <div
