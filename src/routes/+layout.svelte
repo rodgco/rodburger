@@ -73,16 +73,12 @@
 
 <style>
 	#outter {
-		height: 100vh;
-		display: grid;
-		grid-template-rows: 3.75rem minmax(0, 1fr) 3.75rem;
-		grid-template-areas:
-			'header'
-			'main'
-			'footer';
+		min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 	}
 	header {
-		grid-area: header;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -93,7 +89,6 @@
 		margin: 0;
 	}
 	footer {
-		grid-area: footer;
 		width: 100%;
 		text-align: center;
 	}
