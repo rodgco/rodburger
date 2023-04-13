@@ -4,6 +4,9 @@
 	import { enhance, applyAction } from '$app/forms';
   import Conversation from '$lib/chat/store';
 
+  import Order from '$lib/components/order.svelte';
+  import Bubble from '$lib/components/bubble.svelte';
+
 	/** @type {import('./$types').PageData} */
 	export let data;
 
@@ -55,21 +58,9 @@
 			{#each $conversation.messages as message}
         {#if message.content.startsWith('JSON:')}
           {@const order = JSON.parse(message.content.substring(6))}
-          <div class="order">
-            <title>{order.name}</title>
-            {#each order.items as item}
-              <p>{item.qty} - {item.item} [{item.extras}]</p>
-            {/each}
-            <footer>{order.message}</footer>
-          </div>
+          <Order {order} />
         {:else}
-          <div
-					  class="chat-bubble"
-					  class:sent={message.role === 'user'}
-					  aria-busy={message.content === 'Loading' ? 'true' : 'false'}
-  				>
-	  				{@html message.content.replace('\n', '<br>')}
-		  		</div>
+          <Bubble {message} />
         {/if}
 			{/each}
 		</div>
@@ -107,32 +98,6 @@
 	#bubblebox > :first-child {
 		margin-top: max(auto, 5px);
 	}
-	.chat-bubble {
-		font-size: small;
-		color: var(--secondary-inverse);
-		padding: 10px 20px;
-		border-radius: var(--border-radius);
-		max-width: 20rem;
-		margin: 5px 5px 0 5px;
-		background-color: var(--secondary);
-		align-self: flex-start;
-	}
-	.sent {
-		color: var(--primary-inverse);
-		background-color: var(--primary);
-		align-self: flex-end;
-	}
-  .order {
-    color: var(--primary-inverse);
-    background-color: yellow;
-    align-self: center;
-    border-top: 4px dotted orange;
-    border-bottom: 4px dotted orange;
-    border-left: 4px solid orange;
-    border-right: 4px solid orange;
-    padding: 0.75rem 1.25rem;
-    margin: 0.25rem 0; 
-  }
   form {
     margin: 0;
   }
