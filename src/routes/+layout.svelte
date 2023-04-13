@@ -1,40 +1,9 @@
 <script>
 	import '@picocss/pico';
 	import '../app.css';
-	import { onMount } from 'svelte';
-
-	/** @type {Boolean} */
-	let dark_mode;
-
-	onMount(() => {
-		dark_mode = window.matchMedia('(prefers-color-scheme:dark)').matches;
-		if (localStorage.getItem('invertMode') === 'true') dark_mode = !dark_mode;
-	});
-
-	/**
-	 *   @param {HTMLBodyElement} node
-	 *   @param { "dark" | "light" } mode
-	 *   @import('@svelte/kit').action
-	 */
-	const darkModeSwitch = (node, mode) => {
-		const html_element = /** @type HTMLHtmlElement */ (node.parentNode);
-		html_element?.setAttribute('data-theme', mode);
-
-		return {
-			update(/** @type { "dark" | "light" } */ mode) {
-				html_element.setAttribute('data-theme', mode);
-				if (dark_mode !== window.matchMedia('(prefers-color-scheme:dark)').matches) {
-					localStorage.setItem('invertMode', 'true');
-				} else {
-					localStorage.removeItem('invertMode');
-				}
-			},
-			destroy() {}
-		};
-	};
 </script>
 
-<svelte:body use:darkModeSwitch={dark_mode ? 'dark' : 'light'} />
+<svelte:body data-theme='light' />
 
 <div id="outter">
 	<header>
@@ -42,18 +11,6 @@
 		<nav>
 			<ul>
 				<li><a href="/about">about</a></li>
-				<li>
-					<label for="switch">
-						<input
-							type="checkbox"
-							id="switch"
-							name="switch"
-							role="switch"
-							bind:checked={dark_mode}
-						/>
-						Dark mode
-					</label>
-				</li>
 			</ul>
 		</nav>
 	</header>
