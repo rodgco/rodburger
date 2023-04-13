@@ -1,20 +1,21 @@
 <script>
-
- /** @type {import('$lib/server/openai').OpenAIChatMessage} */
-  export let message;
+	/** @type {import('$lib/server/openai').OpenAIChatMessage} */
+	export let message;
 </script>
 
-<div
-  class="chat-bubble"
-  class:sent={message.role === 'user'}
-  aria-busy={message.content === 'Loading' ? 'true' : 'false'}
-  >
-  {@html message.content.replace('\n', '<br>')}
-</div>
+<pre
+	class="chat-bubble"
+	class:sent={message.role === 'user'}
+	aria-busy={message.content === 'Loading' ? 'true' : 'false'}>{@html message.content.replace(
+		'\n',
+		'<br>'
+	)}</pre>
 
 <style>
 	.chat-bubble {
-		font-size: small;
+		white-space: pre-wrap;
+		overflow: auto;
+		font-family: inherit;
 		color: var(--secondary-inverse);
 		padding: 10px 20px;
 		border-radius: var(--border-radius);
