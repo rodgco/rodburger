@@ -45,20 +45,27 @@ interface Order {
 };
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ request }) {
-	/** @type {string} */
-	const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
-	/** @type {string} */
-	const translatedMessage = await translateMessage(initialMessage, language);
+export async function load({ request, locals }) {
   /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
-	const messages = [{ role: 'assistant', content: translatedMessage }];
+  const messages = [];
 
-	return { messages };
+  if (locals.messages) {
+    messages.push( ...locals.messages );
+  } else {
+    /** @type {string} */
+    const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
+    /** @type {string} */
+    const translatedMessage = await translateMessage(initialMessage, language);
+    /** @type {import('$lib/server/openai').OpenAIChatMessage[]} */
+    messages.push({ role: 'assistant', content: translatedMessage });
+  }
+
+  return { messages };
 }
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request }) => {
+  default: async ({ request, locals }) => {
     /** @type {string} */
     const language = request?.headers?.get('accept-language')?.split(',')[0] || 'en';
     /** @type {FormData} */
@@ -137,6 +144,7 @@ export const actions = {
       messages.shift();
     }
 
+    locals.messages = messages;
 
     return { success: true, messages };
   }
