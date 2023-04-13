@@ -90,7 +90,7 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
-    overflow-y: auto;
+    overflow-y: scroll;
 		padding-bottom: 5px;
 		border: 1px solid var(--range-border-color);
 		border-radius: var(--border-radius);

@@ -7,7 +7,7 @@
 
 <div id="outter">
 	<header>
-		<h1><img src="rodburger.svg" alt="A burger"/></h1>
+		<h1><a href="/"><img src="rodburger.svg" alt="A burger"/></a></h1>
 		<nav>
 			<ul>
 				<li><a href="/about">about</a></li>

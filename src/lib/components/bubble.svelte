@@ -13,6 +13,7 @@
 
 <style>
 	.chat-bubble {
+    flex: 0 0 auto;
 		white-space: pre-wrap;
 		overflow: auto;
 		font-family: inherit;

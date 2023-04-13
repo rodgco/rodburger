@@ -1,0 +1,25 @@
+@startuml
+customer -> assistant : open page
+activate assistant
+
+loop until confirmation
+
+  customer <- assistant : welcome | response
+  assistant -> gpt4 : chatCompletion
+  activate gpt4
+  assistant <- gpt4 : response
+  deactivate gpt4
+
+  customer -> assistant : question | request
+
+end
+
+assistant -> gpt4 : create json
+activate gpt4
+assistant <- gpt4 : json
+deactivate gpt4
+
+customer <- assistant: order
+deactivate assistant
+
+@enduml
