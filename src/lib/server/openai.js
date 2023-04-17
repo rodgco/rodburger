@@ -107,7 +107,7 @@ function openaiAPI() {
 		 */
 		createChatCompletion: async (request) => {
 			const body = JSON.stringify({
-				model: 'gpt-4',
+				model: 'gpt-3.5-turbo',
 				messages: [{ role: 'user', content: 'Hello!' }],
 				max_tokens: 300,
 				...request
@@ -129,7 +129,7 @@ function openaiAPI() {
 					id: 'chat-no-completion',
 					object: 'chat.completion',
 					created: 1677649420,
-					model: request.model || 'gpt-4',
+					model: request.model || 'gpt-3.5-turbo',
 					usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
 					choices: [
 						{

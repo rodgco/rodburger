@@ -14,7 +14,7 @@
     session_id: "",
     messages: data.messages,
     status: "open"
-  })
+  }, { storage: "localStorage", key: "conversation", load: true })
 
 	/** @type {HTMLInputElement} */
 	let input;

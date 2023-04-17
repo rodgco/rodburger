@@ -87,14 +87,15 @@ export const actions = {
         { role: 'user', content: message }
       );
 
-      ///** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
-      //const jsonCompletion = await openai.createChatCompletion({
-      //  messages: [...messages, formatJSONMessage],
-      //});
+      /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
+      const jsonCompletion = await openai.createChatCompletion({
+        messages: [...messages, formatJSONMessage],
+      });
 
-      // const json = jsonCompletion?.choices[0].message.content.trim();
-      const json = '{"name":"Rodrigo","message":"put love in it","items":[{"item":"Burger","qty":1,"extras":[]},{"item":"Coke","qty": 1,"extras": []}]}';
-      console.log(json);
+      const json = jsonCompletion?.choices[0].message.content.trim();
+      // const json = '{"name":"Rodrigo","message":"put love in it","items":[{"item":"Burger","qty":1,"extras":[]},{"item":"Coke","qty": 1,"extras": []}]}';
+
+      console.log('JSON', json);
 
       messages.push(
         { role: 'assistant', content: 'Thank you!' },
