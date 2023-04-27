@@ -9,7 +9,6 @@
 	<header>
 		<h1><a href="/"><img src="rodburger.svg" alt="A burger"/></a></h1>
 		<nav>
-      <button on:click={() => (window.open('','_parent')?.close()) }>Close</button>
 			<ul>
 				<li><a href="/about">about</a></li>
 			</ul>

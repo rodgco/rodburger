@@ -43,7 +43,7 @@ const formatJSONMessage = {
 interface Order {
   name: string;
   message: string;
-  items: {item: string; qty: number; extras?: string[]};
+  items: {item: string; qty: number; extras?: string[]}[];
 }`
 };
 

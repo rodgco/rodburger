@@ -19,6 +19,8 @@
 	/** @type {HTMLInputElement} */
 	let input;
 
+  $: console.log($conversation);
+
 	onMount(() => {
 		input.focus();
 	});
@@ -54,6 +56,8 @@
     <form method="POST" use:enhance={enhancer}>
       <input type="hidden" name="conversation" value={JSON.stringify($conversation.messages)} />
       <input bind:this={input} type="text" name="message" />
+      
+      <button type="button" on:click={() => conversation.reset()}>Reset</button>
     </form>
 		<div id="bubblebox">
 			{#each $conversation.messages as message}

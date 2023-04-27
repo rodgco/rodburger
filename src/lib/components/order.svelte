@@ -16,7 +16,7 @@
   <code>
     <header>{order.name}</header>
     {#each order.items as item}
-      <div>{`${item.qty} - ${item.item} ${item.extras.length > 0 ? `[${item.extras}]` : ""}`}</div>
+      <div>{`${item.qty} - ${item.item} ${item.extras?.length > 0 ? `[${item.extras}]` : ""}`}</div>
     {/each}
     <footer>"{order.message}"</footer>
   </code>

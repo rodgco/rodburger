@@ -23,6 +23,11 @@ class Conversation extends Store {
   replaceMessages(messages) {
 		this.update((data) => ({ ...data, messages}));
   }
+
+  reset() {
+    const first = this.current().messages[0];
+    this.set({ status: 'open', session_id: "", messages: [first]})
+  }
 }
 
 export default Conversation;
