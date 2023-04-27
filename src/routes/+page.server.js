@@ -41,9 +41,9 @@ const formatJSONMessage = {
 	content: `Format my order as JSON. Do not translate the JSON field names. Don't include any other message, just the JSON. JSON must conform with this typescript interface:
 
 interface Order {
-  "name": string;
-  "message": string;
-  "items": {"item": string; "qty": number; "extras": string[]};
+  name: string;
+  message: string;
+  items: {item: string; qty: number; extras?: string[]};
 }`
 };
 
@@ -127,6 +127,8 @@ export const actions = {
       const response = completion.choices[0].message.content.trim();
 
       if (response.includes(SECRET_KEY)) {
+        console.log("Fechando", response);
+
         /** @type {import('$lib/server/openai').OpenAIChatCompletionResponse} */
         const jsonCompletion = await openai.createChatCompletion({
           messages: [...messages, formatJSONMessage],

@@ -39,7 +39,8 @@
 				await applyAction(result);
 			} else if (result.type === 'success') {
         console.log("Result", result);
-        conversation.replaceMessages(result.data.messages);
+        if (result.data)
+          conversation.replaceMessages(result.data.messages);
 
 				input.disabled = false;
 				input.focus();
