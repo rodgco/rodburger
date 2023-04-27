@@ -107,7 +107,7 @@ function openaiAPI() {
 		 */
 		createChatCompletion: async (request) => {
 			const body = JSON.stringify({
-				model: 'gpt-3.5-turbo',
+				model: 'gpt-4',
 				messages: [{ role: 'user', content: 'Hello!' }],
 				max_tokens: 300,
 				...request
