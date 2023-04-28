@@ -1,0 +1,12 @@
+{
+	"fontName": "fnt",
+	"website": false,
+	"outSVGReact": false,
+	"css": {
+		"include": "\\.(css)$",
+		"output": "./static",
+		"fileName": "fnt-icon",
+		"cssPath": "./fonts/"
+	}
+}
+
