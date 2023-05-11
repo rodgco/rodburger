@@ -2,7 +2,13 @@ import Store from 'svelegante';
 
 import openaiAPI from '$lib/openai';
 import { translateMessage } from '$lib/helper';
-import { initialMessage, systemMessage, formatJSONMessage } from './messages';
+import {
+	initialMessage,
+	systemMessage,
+	formatJSONMessage,
+	missingKeyMessage,
+	resetMessage
+} from './messages';
 
 import { store as settings } from '$lib/settings';
 
@@ -45,10 +51,7 @@ class Conversation extends Store {
 		const { secret_key: openai_api_key, model } = get(settings);
 
 		if (openai_api_key === '') {
-			messages.push({
-				role: 'assistant',
-				content: 'You need to inform your OpenAI API Key, click on the setings button.'
-			});
+			messages.push(missingKeyMessage);
 			return { success: true, messages };
 		}
 
@@ -57,31 +60,29 @@ class Conversation extends Store {
 		/** @type {OpenAIChatCompletionResponse} */
 		const completion = await openai.createChatCompletion({
 			messages,
-			temperature: 0.2
+			temperature: 0.7
 		});
 
 		/** @type {string} */
 		const response = completion.choices[0].message.content.trim();
 
 		if (response.includes(PUBLIC_SECRET_KEY)) {
-      this.addMessage({ role: 'assistant', content: response.replace(PUBLIC_SECRET_KEY, '') });
+			this.addMessage({ role: 'assistant', content: response.replace(PUBLIC_SECRET_KEY, '') });
 
 			/** @type {OpenAIChatCompletionResponse} */
 			const jsonCompletion = await openai.createChatCompletion({
 				messages: [
-          formatJSONMessage,
+					formatJSONMessage,
 					...this.current().messages,
-          { role: 'user', content: 'Summarize my order in JSON format.' }
+					{ role: 'user', content: 'Summarize my order in JSON format.' }
 				]
 			});
 
 			const json = jsonCompletion?.choices[0].message.content.trim();
 
 			this.addMessage({ role: 'assistant', content: `JSON: ${json}` });
-			this.addMessage({
-				role: 'assistant',
-				content: await translateMessage(initialMessage.content, language)
-			});
+			this.addMessage(resetMessage);
+			this.update((current) => ({ ...current, status: 'closed' }));
 		} else {
 			this.addMessage({ role: 'assistant', content: response });
 		}

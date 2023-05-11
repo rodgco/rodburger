@@ -78,4 +78,14 @@ const missingKeyMessage = {
 	content: 'You need to inform your OpenAI API Key, click on the setings button.'
 };
 
-export { slogan, initialMessage, systemMessage, formatJSONMessage, missingKeyMessage };
+/** @type {OpenAIChatMessage} */
+const resetMessage = { role: 'assistant', content: 'Click Reset to re-start' };
+
+export {
+	slogan,
+	initialMessage,
+	systemMessage,
+	formatJSONMessage,
+	missingKeyMessage,
+	resetMessage
+};

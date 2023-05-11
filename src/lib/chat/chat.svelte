@@ -1,38 +1,55 @@
 <script>
-	import Order from '$lib/components/order.svelte';
-	import Bubble from '$lib/components/bubble.svelte';
+  import Order from '$lib/components/order.svelte';
+  import Bubble from '$lib/components/bubble.svelte';
 
-	import conversation from './store';
-	import './types.d';
+  import conversation from './store';
+  import './types.d';
 
-	/** @type {HTMLInputElement} */
-	let input;
+  /** @type {HTMLInputElement} */
+  let input;
 
-	/** @type {boolean} */
-	let loading = false;
+  /** @type {HTMLButtonElement} */
+  let sendButton;
 
-	/** @type {import('svelte/elements').FormEventHandler<HTMLFormElement>} */
-	async function sendMessage() {
-		input.disabled = true;
-		loading = true;
+  /** @type {boolean} */
+  let loading = false;
 
-		conversation.addMessage({ role: 'user', content: input.value });
+  $: if (input && sendButton && ($conversation.status === 'closed' || loading)) {
+      input.disabled = true;
+      sendButton.disabled = true;
+    }
+  $: if (input && sendButton && $conversation.status === 'open' && !loading) {
+      input.disabled = false;
+      sendButton.disabled = false;
+    }
 
-		input.value = '';
+  /** @type {import('svelte/elements').FormEventHandler<HTMLFormElement>} */
+  async function sendMessage() {
+    input.disabled = true;
+    sendButton.disabled = true;
+    loading = true;
 
-		await conversation.callAssistant();
+    conversation.addMessage({ role: 'user', content: input.value });
 
-		input.disabled = false;
-		input.focus();
-		loading = false;
-	}
+    input.value = '';
+
+    await conversation.callAssistant();
+
+    loading = false;
+
+    if ($conversation.status === 'open') {
+      input.disabled = false;
+      sendButton.disabled = false;
+      input.focus();
+    }
+  }
 
   /**
    * @param {number} index
    */
-	function remove(index) {
-		conversation.removeMessage(index);
-	}
+  function remove(index) {
+    conversation.removeMessage(index);
+  }
 </script>
 
 <div id="chat">
@@ -40,7 +57,7 @@
 		<!-- svelte-ignore a11y-autofocus -->
 		<input bind:this={input} type="text" name="message" autofocus required />
 
-		<button type="submit">Send</button>
+		<button bind:this={sendButton} type="submit">Send</button>
 	</form>
 	<div id="bubblebox">
 		{#each $conversation.messages as message, index}
