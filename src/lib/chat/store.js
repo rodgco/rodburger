@@ -1,33 +1,100 @@
 import Store from 'svelegante';
-import './types.d';
 
-/**
- * @typedef FrontendData
- * @property {string} session_id
- * @property {'open' | 'closed'} status
- * @property {import('$lib/server/openai').OpenAIChatMessage[]} messages
- */
+import openaiAPI from '$lib/openai';
+import { translateMessage } from '$lib/helper';
+import { initialMessage, systemMessage, formatJSONMessage } from './messages';
 
-/** @extends{Store<FrontendData>} */
+import { store as settings } from '$lib/settings';
+
+import '$lib/openai/types.d';
+import { get } from 'svelte/store';
+import { PUBLIC_SECRET_KEY } from '$env/static/public';
+
+/** @extends{Store<import('./types.d').FrontendData>} */
 class Conversation extends Store {
 	/**
-	 * @param {import('$lib/server/openai').OpenAIChatMessage} message
+	 * @param {OpenAIChatMessage} message
 	 */
 	addMessage(message) {
-		this.update((data) => ({ ...data, messages: [ ...data.messages, message ] }));
+		this.update((data) => ({ ...data, messages: [...data.messages, message] }));
 	}
 
-  /**
-   * @param {import('$lib/server/openai').OpenAIChatMessage[]} messages
-   */
-  replaceMessages(messages) {
-		this.update((data) => ({ ...data, messages}));
-  }
+	/**
+	 * @param {OpenAIChatMessage[]} messages
+	 */
+	replaceMessages(messages) {
+		this.update((data) => ({ ...data, messages }));
+	}
 
-  reset() {
-    const first = this.current().messages[0];
-    this.set({ status: 'open', session_id: "", messages: [first]})
-  }
+	/**
+	 * @param {number} index
+	 */
+	removeMessage(index) {
+		this.update((data) => ({ ...data, messages: data.messages.toSpliced(index, 1) }));
+	}
+
+	reset() {
+		this.update((current) => ({ ...current, status: 'open', messages: [initialMessage] }));
+	}
+
+	async callAssistant() {
+		/** @type {string} */
+		const language = 'en';
+		/** @type {OpenAIChatMessage[]} */
+		const messages = [systemMessage, ...this.current().messages];
+		const { secret_key: openai_api_key, model } = get(settings);
+
+		if (openai_api_key === '') {
+			messages.push({
+				role: 'assistant',
+				content: 'You need to inform your OpenAI API Key, click on the setings button.'
+			});
+			return { success: true, messages };
+		}
+
+		const openai = openaiAPI(openai_api_key, model);
+
+		/** @type {OpenAIChatCompletionResponse} */
+		const completion = await openai.createChatCompletion({
+			messages,
+			temperature: 0.2
+		});
+
+		/** @type {string} */
+		const response = completion.choices[0].message.content.trim();
+
+		if (response.includes(PUBLIC_SECRET_KEY)) {
+      this.addMessage({ role: 'assistant', content: response.replace(PUBLIC_SECRET_KEY, '') });
+
+			/** @type {OpenAIChatCompletionResponse} */
+			const jsonCompletion = await openai.createChatCompletion({
+				messages: [
+          formatJSONMessage,
+					...this.current().messages,
+          { role: 'user', content: 'Summarize my order in JSON format.' }
+				]
+			});
+
+			const json = jsonCompletion?.choices[0].message.content.trim();
+
+			this.addMessage({ role: 'assistant', content: `JSON: ${json}` });
+			this.addMessage({
+				role: 'assistant',
+				content: await translateMessage(initialMessage.content, language)
+			});
+		} else {
+			this.addMessage({ role: 'assistant', content: response });
+		}
+	}
 }
 
-export default Conversation;
+const conversation = new Conversation(
+	{
+		session_id: '',
+		messages: [initialMessage],
+		status: 'open'
+	},
+	{ storage: 'localStorage', key: 'conversation', load: true }
+);
+
+export default conversation;

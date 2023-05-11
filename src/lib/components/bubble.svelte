@@ -1,15 +1,24 @@
 <script>
-	/** @type {import('$lib/server/openai').OpenAIChatMessage} */
-	export let message;
+	import { onMount } from "svelte";
+
+  /** @type {"user" | "assistant" | "system" | "loading"} */
+  export let role;
+
+  /** @type {HTMLElement} */
+  let bubble;
+
+  onMount(() => {
+    bubble.scrollIntoView(true);
+    })
+    
 </script>
 
 <pre
+  bind:this={bubble}
 	class="chat-bubble"
-	class:sent={message.role === 'user'}
-	aria-busy={message.content === 'Loading' ? 'true' : 'false'}>{@html message.content.replace(
-		'\n',
-		'<br>'
-	)}</pre>
+	class:sent={role === 'user'}
+	aria-busy={role === 'loading'}
+  on:dblclick><slot /></pre>
 
 <style>
 	.chat-bubble {
@@ -26,6 +35,7 @@
 		align-self: flex-start;
 	}
 	.sent {
+    margin-left: auto;
 		color: var(--primary-inverse);
 		background-color: var(--primary);
 		align-self: flex-end;
