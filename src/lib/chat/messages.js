@@ -75,11 +75,11 @@ Example:
 /** @type {OpenAIChatMessage} */
 const missingKeyMessage = {
 	role: 'assistant',
-	content: 'You need to inform your OpenAI API Key, click on the setings button.'
+	content: 'You need an OpenAI API Key to use Rod\'s Burger, click on setings (engine button at top).'
 };
 
 /** @type {OpenAIChatMessage} */
-const resetMessage = { role: 'assistant', content: 'Click Reset to re-start' };
+const resetMessage = { role: 'assistant', content: 'Click Reset to restart' };
 
 export {
 	slogan,

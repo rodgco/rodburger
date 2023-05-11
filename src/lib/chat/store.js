@@ -51,7 +51,7 @@ class Conversation extends Store {
 		const { secret_key: openai_api_key, model } = get(settings);
 
 		if (openai_api_key === '') {
-			messages.push(missingKeyMessage);
+			conversation.addMessage(missingKeyMessage);
 			return { success: true, messages };
 		}
 
