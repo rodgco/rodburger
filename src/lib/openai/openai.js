@@ -20,29 +20,36 @@ function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
 				...request
 			});
 
-			const res = await fetch(`${base_url}/chat/completions`, {
-				method: 'POST',
-				headers: {
-					Authorization: bearer,
-					'Content-Type': 'application/json'
-				},
-				body
-			});
+			try {
+				const res = await fetch(`${base_url}/chat/completions`, {
+					method: 'POST',
+					headers: {
+						Authorization: bearer,
+						'Content-Type': 'application/json'
+					},
+					body
+				});
 
-			if (!res.ok) {
-				const err = await res.text();
-				console.log(err);
+				if (!res.ok) {
+					const { error } = await res.json();
+					throw `${error.type}: ${error.message || error.code}`;
+				}
+
+				const data = await res.json();
+				console.log('tokens:', data.usage.total_tokens);
+				return data;
+			} catch (_err) {
 				return {
 					id: 'chat-no-completion',
 					object: 'chat.completion',
-					created: 1677649420,
+					created: Math.floor(Date.now() / 1000),
 					model: request.model || 'gpt-3.5-turbo',
 					usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
 					choices: [
 						{
 							message: {
 								role: 'assistant',
-								content: "It seems we're busy at the kitchen right now, please try again later."
+								content: "It seems we're busy at the kitchen right now, please try again later!"
 							},
 							finish_reason: 'null',
 							index: 0
@@ -50,10 +57,6 @@ function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
 					]
 				};
 			}
-
-			const data = await res.json();
-			console.log('tokens:', data.usage.total_tokens);
-			return data;
 		},
 		/** @param { Partial<OpenAIChatCompletionRequest> } request */
 		createChatCompletionStream: async (request) => {
@@ -85,7 +88,7 @@ function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
 			/** @type { ReadableStream } */
 			const stream = new ReadableStream({
 				async start(controller) {
-          /** @param {any} event */
+					/** @param {any} event */
 					function onParse(event) {
 						if (event.type === 'event') {
 							const { data } = event;
