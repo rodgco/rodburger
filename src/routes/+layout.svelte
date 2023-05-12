@@ -28,9 +28,9 @@
 	<footer>
 		<nav>
 			<ul>
-				<li><a href="https://github.com/rodgco">Github</a></li>
-				<li><a href="https://twitter.com/rodg_co">Twitter</a></li>
-				<li><a href="https://linkedin.com/in/rodgco">LinkedIn</a></li>
+				<li><a href="https://github.com/rodgco/rodburger" target="_blank">Github</a></li>
+				<li><a href="https://twitter.com/rodg_co" target="_blank">Twitter</a></li>
+				<li><a href="https://linkedin.com/in/rodgco" target="_blank">LinkedIn</a></li>
 			</ul>
 		</nav>
 	</footer>
