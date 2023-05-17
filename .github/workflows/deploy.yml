@@ -19,6 +19,8 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
+          with:
+            version: 8.5.1
 
       - name: Build step
         run: pnpm run build # 📝 Update the build command(s)
