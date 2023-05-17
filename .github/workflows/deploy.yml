@@ -29,6 +29,9 @@ jobs:
       - name: Build step
         run: pnpm run build # 📝 Update the build command(s)
 
+      - name: List
+        run: ls -la
+
       - name: Clean Up
         run: rm -rf node_modules
 
