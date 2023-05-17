@@ -36,5 +36,4 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "rodgco-rodburger"
-          entrypoint: "{out}/server.js" # same as `out` option in config
-          root: "{out}"
+          entrypoint: ".svelte-kit/output/server.js" # same as `out` option in config
