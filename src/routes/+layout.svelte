@@ -19,6 +19,7 @@
 				</ul>
 			</nav>
 			<Settings />
+    <button class="progressier-install-button reset" data-icons="false" data-install="Install" data-installed="Installed"></button>
 		<button class="reset" type="button" on:click={() => conversation.reset()}>Reset</button>
 		</div>
 	</header>
