@@ -43,36 +43,6 @@ In our catalog we offer:
 };
 
 /** @type {OpenAIChatMessage} */
-const formatJSONMessage = {
-	role: 'system',
-	content: `You are a helpful assistant that only responds in JSON format.
-Extract the values from the conversation and format the order as a JSON.
-Do not translate the JSON field names. 
-Transform the message to chef into an imperative form.
-Don't include any other message, just the JSON. JSON must conform with this typescript interface:
-
-interface Order {
-  name: string;
-  message: string;
-  items: {item: string; qty: number; extras?: string[]}[];
-}
-
-Example:
-\`\`\`
-{
-  name: "Joaquim",
-  message: "You're so beautiful",
-  items: [
-    { item: "burger", qty: 1, extras: ["bacon"] },
-    { item: "coke", qty: 2}
-  ]
-}
-\`\`\`
-{
-`
-};
-
-/** @type {OpenAIChatMessage} */
 const missingKeyMessage = {
 	role: 'assistant',
 	content: 'You need an OpenAI API Key to use Rod\'s Burger, click on setings (engine button at top).'
@@ -85,7 +55,6 @@ export {
 	slogan,
 	initialMessage,
 	systemMessage,
-	formatJSONMessage,
 	missingKeyMessage,
 	resetMessage
 };

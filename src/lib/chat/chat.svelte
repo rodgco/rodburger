@@ -2,7 +2,7 @@
   import Order from '$lib/components/order.svelte';
   import Bubble from '$lib/components/bubble.svelte';
 
-  import conversation from './store';
+  import conversation from './attendant.js';
   import './types.d';
 
   /** @type {HTMLInputElement} */

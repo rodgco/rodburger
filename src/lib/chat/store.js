@@ -1,23 +1,8 @@
 import Store from 'svelegante';
-
 import openaiAPI from '$lib/openai';
-import { translateMessage } from '$lib/helper';
-import {
-	initialMessage,
-	systemMessage,
-	formatJSONMessage,
-	missingKeyMessage,
-	resetMessage
-} from './messages';
-
-import { store as settings } from '$lib/settings';
-
-import '$lib/openai/types.d';
-import { get } from 'svelte/store';
-import { PUBLIC_SECRET_KEY } from '$env/static/public';
 
 /** @extends{Store<import('./types.d').FrontendData>} */
-class Conversation extends Store {
+export default class Conversation extends Store {
 	/**
 	 * @param {OpenAIChatMessage} message
 	 */
@@ -39,63 +24,57 @@ class Conversation extends Store {
 		this.update((data) => ({ ...data, messages: data.messages.toSpliced(index, 1) }));
 	}
 
-	reset() {
-		this.update((current) => ({ ...current, status: 'open', messages: [initialMessage] }));
-	}
+  /** @type {OpenAIChatMessage} */
+  get systemMessage() {
+    return this.current().systemMessage;
+  }
 
-	async callAssistant() {
-		/** @type {string} */
-		const language = 'en';
-		/** @type {OpenAIChatMessage[]} */
-		const messages = [systemMessage, ...this.current().messages];
-		const { secret_key: openai_api_key, model } = get(settings);
+  /** @type {OpenAIChatMessage[]} */
+  get messages() {
+    return this.current().messages;
+  }
 
-		if (openai_api_key === '') {
-			conversation.addMessage(missingKeyMessage);
-			return { success: true, messages };
-		}
+  /** @type {string} */
+  get secretKey() {
+    return this.current().secretKey;
+  }
 
-		const openai = openaiAPI(openai_api_key, model);
+  /** @param {string} secretKey */
+  set secretKey(secretKey) {
+    this.update((data) => ({ ...data, secretKey }));
+  }
+
+  /** @type {'gpt-3.5-turbo'|'gpt-4'} */
+  get model() {
+    return this.current().model;
+  }
+
+  /** @param {'gpt-3.5-turbo'|'gpt-4'} model */
+  set model(model) {
+    this.update((data) => ({ ...data, model }));
+  }
+
+  /**
+   * @param {'gpt-3.5-turbo'|'gpt-4'|null} model
+   * @param {Partial<OpenAIChatCompletionRequest>} config
+   * @returns {Promise<string>}
+   */
+  async callAPI(model = null, config = {}) {
+    config = {
+      temperature: 0.5,
+      ...config,
+      messages: [this.systemMessage, ...this.messages]
+    };
+
+    const openai = openaiAPI(this.secretKey, model || this.model);
 
 		/** @type {OpenAIChatCompletionResponse} */
-		const completion = await openai.createChatCompletion({
-			messages,
-			temperature: 0.7
-		});
+		const completion = await openai.createChatCompletion(config);
 
 		/** @type {string} */
 		const response = completion.choices[0].message.content.trim();
 
-		if (response.includes(PUBLIC_SECRET_KEY)) {
-			this.addMessage({ role: 'assistant', content: response.replace(PUBLIC_SECRET_KEY, '') });
-
-			/** @type {OpenAIChatCompletionResponse} */
-			const jsonCompletion = await openai.createChatCompletion({
-				messages: [
-					formatJSONMessage,
-					...this.current().messages,
-					{ role: 'user', content: 'Summarize my order in JSON format.' }
-				]
-			});
-
-			const json = jsonCompletion?.choices[0].message.content.trim();
-
-			this.addMessage({ role: 'assistant', content: `JSON: ${json}` });
-			this.addMessage(resetMessage);
-			this.update((current) => ({ ...current, status: 'closed' }));
-		} else {
-			this.addMessage({ role: 'assistant', content: response });
-		}
-	}
+    return response;
+  }
 }
 
-const conversation = new Conversation(
-	{
-		session_id: '',
-		messages: [initialMessage],
-		status: 'open'
-	},
-	{ storage: 'localStorage', key: 'conversation', load: true }
-);
-
-export default conversation;

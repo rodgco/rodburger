@@ -23,15 +23,10 @@ import '$lib/openai/types.d'
 
 /**
  * @typedef {Object} FrontendData
- * @property {string} session_id
  * @property {'open' | 'closed'} status
+ * @property {OpenAIChatMessage} systemMessage
  * @property {OpenAIChatMessage[]} messages
- */
-
-/**
- * Was in FrontendData
- * @property {string} openai_api_key
+ * @property {string} secretKey
  * @property {'gpt-3.5-turbo'|'gpt-4'} model
- * @property {string} lang
  */
 

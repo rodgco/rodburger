@@ -2,7 +2,7 @@
 	import '@picocss/pico';
 	import '../app.css';
 
-  import conversation from '$lib/chat/store';
+  import conversation from '$lib/chat/attendant.js';
 
 	import Settings from '$lib/settings';
 </script>
