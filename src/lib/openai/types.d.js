@@ -41,4 +41,3 @@
  * @property {string} choices[].finish_reason - The reason why the completion finished, e.g. 'stop' or 'max_tokens'.
  * @property {number} choices[].index - The index of the choice in the array.
  */
-

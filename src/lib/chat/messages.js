@@ -45,16 +45,11 @@ In our catalog we offer:
 /** @type {OpenAIChatMessage} */
 const missingKeyMessage = {
 	role: 'assistant',
-	content: 'You need an OpenAI API Key to use Rod\'s Burger, click on setings (engine button at top).'
+	content:
+		"You need an OpenAI API Key to use Rod's Burger, click on setings (engine button at top)."
 };
 
 /** @type {OpenAIChatMessage} */
 const resetMessage = { role: 'assistant', content: 'Click Reset to restart' };
 
-export {
-	slogan,
-	initialMessage,
-	systemMessage,
-	missingKeyMessage,
-	resetMessage
-};
+export { slogan, initialMessage, systemMessage, missingKeyMessage, resetMessage };

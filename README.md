@@ -30,5 +30,3 @@ There is other configuration required to run the server.
 Rod's Burger uses the Chat Completion API from OpenAI, the same one used by ChatGPT. Costs for using it can explode if used by too many people, but it is very cheap when used responsibly by a single person. That's why we decided that anyone who wants to experiment our burgers must bring their own [OpenAI API Secret Key](https://platform.openai.com/account/api-keys). Your key will be stored in your browser local storage, and kept safe as long as the source of code of this app remains original.
 
 Go grab your [OpenAI API Secret Key](https://platform.openai.com/account/api-keys) and experiment our Burgers.
-
-

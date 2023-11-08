@@ -1,13 +1,13 @@
-import openai from "./openai";
+import openai from './openai';
 
 /**
-* @async
-* @param {string} message - The message to be translated
-* @param {string} language - The target language
-* @returns {Promise<string>}
-* @description Use OpenAIChatCompletion to translate a message to the desired language
-* @example translaMessage('Hello World', 'pt-BR') => 'Olá Mundo'
-*/
+ * @async
+ * @param {string} message - The message to be translated
+ * @param {string} language - The target language
+ * @returns {Promise<string>}
+ * @description Use OpenAIChatCompletion to translate a message to the desired language
+ * @example translaMessage('Hello World', 'pt-BR') => 'Olá Mundo'
+ */
 export async function translateMessage(message, language) {
 	return language.includes('en')
 		? message

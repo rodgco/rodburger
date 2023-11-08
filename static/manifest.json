@@ -1,10 +1,10 @@
 {
-  "name": "Rod's Burger",
-  "description": "Rod's Burger, the best Burger served by AI",
-  "start_url": "/",
-  "lang": "en-US",
-  "theme_color": "#f4511e",
-  "display": "standalone",
+	"name": "Rod's Burger",
+	"description": "Rod's Burger, the best Burger served by AI",
+	"start_url": "/",
+	"lang": "en-US",
+	"theme_color": "#f4511e",
+	"display": "standalone",
 	"short_name": "rodburger",
 	"icons": [
 		{ "src": "/homescreen-logo(192).png", "sizes": "192x192", "type": "image/png" },
