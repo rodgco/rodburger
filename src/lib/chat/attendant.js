@@ -4,7 +4,7 @@ import { initialMessage, systemMessage, resetMessage, missingKeyMessage } from '
 import { store as settings } from '$lib/settings';
 import { get } from 'svelte/store';
 
-const backOffice = BackOffice('gpt-4');
+const backOffice = BackOffice('gpt-4-1106-preview');
 
 /** @extends{Conversation} */
 class Attendant extends Conversation {

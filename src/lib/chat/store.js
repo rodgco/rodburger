@@ -44,18 +44,18 @@ export default class Conversation extends Store {
     this.update((data) => ({ ...data, secretKey }));
   }
 
-  /** @type {'gpt-3.5-turbo'|'gpt-4'} */
+  /** @type {'gpt-3.5-turbo'|'gpt-4'|'gpt-4-1106-preview'} */
   get model() {
     return this.current().model;
   }
 
-  /** @param {'gpt-3.5-turbo'|'gpt-4'} model */
+  /** @param {'gpt-3.5-turbo'|'gpt-4'|'gpt-4-1106-preview'} model */
   set model(model) {
     this.update((data) => ({ ...data, model }));
   }
 
   /**
-   * @param {'gpt-3.5-turbo'|'gpt-4'|null} model
+   * @param {'gpt-3.5-turbo'|'gpt-4'|'gpt-4-1106-preview'|null} model
    * @param {Partial<OpenAIChatCompletionRequest>} config
    * @returns {Promise<string>}
    */

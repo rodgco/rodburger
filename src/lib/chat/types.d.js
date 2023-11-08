@@ -27,6 +27,6 @@ import '$lib/openai/types.d'
  * @property {OpenAIChatMessage} systemMessage
  * @property {OpenAIChatMessage[]} messages
  * @property {string} secretKey
- * @property {'gpt-3.5-turbo'|'gpt-4'} model
+ * @property {'gpt-3.5-turbo'|'gpt-4'|'gpt-4-1106-preview'} model
  */
 

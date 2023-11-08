@@ -4,7 +4,7 @@ import { createParser } from 'eventsource-parser';
  * @param {string} api_key
  * @param {string} [model]
  */
-function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
+function openaiAPI(api_key, model = 'gpt-4-1106-preview') {
 	const base_url = 'https://api.openai.com/v1';
 	const bearer = 'Bearer ' + api_key;
 	return {
@@ -43,7 +43,7 @@ function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
 					id: 'chat-no-completion',
 					object: 'chat.completion',
 					created: Math.floor(Date.now() / 1000),
-					model: request.model || 'gpt-3.5-turbo',
+					model: request.model || 'gpt-4-1106-preview',
 					usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
 					choices: [
 						{
