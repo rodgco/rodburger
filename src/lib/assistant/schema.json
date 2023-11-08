@@ -1,0 +1,50 @@
+{
+	"name": "expedite_order",
+	"description": "Expedite an order",
+	"parameters": {
+		"type": "object",
+		"properties": {
+			"complete": {
+				"type": "boolean",
+				"description": "Is the order complete?"
+			},
+			"confirmed": {
+				"type": "boolean",
+				"description": "The customer confirmed the order?"
+			},
+			"name": {
+				"type": "string",
+				"description": "The customer name"
+			},
+			"message": {
+				"type": "string",
+				"description": "The nice message to the Chef"
+			},
+			"items": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"item": {
+							"type": "string",
+							"description": "Item name"
+						},
+						"qty": {
+							"type": "integer",
+							"description": "Quantity of the item"
+						},
+						"extras": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"description": "Extras to the item"
+							}
+						}
+					},
+					"required": ["item", "qty"]
+				}
+			}
+		},
+		"required": ["complete", "confirmed", "name", "message", "items"]
+	}
+}

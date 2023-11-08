@@ -5,6 +5,10 @@
   import conversation from '$lib/chat/attendant.js';
 
 	import Settings from '$lib/settings';
+
+  import Assistant from '$lib/openai/assistant';
+
+  $: console.log('Assistant', $Assistant);
 </script>
 
 <svelte:body data-theme="light" />

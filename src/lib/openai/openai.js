@@ -4,7 +4,7 @@ import { createParser } from 'eventsource-parser';
  * @param {string} api_key
  * @param {string} [model]
  */
-function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
+function openaiAPI(api_key, model = 'gpt-4-turbo') {
 	const base_url = 'https://api.openai.com/v1';
 	const bearer = 'Bearer ' + api_key;
 	return {
@@ -124,7 +124,7 @@ function openaiAPI(api_key, model = 'gpt-3.5-turbo') {
 				}
 			});
 			return stream;
-		}
+		},
 	};
 }
 

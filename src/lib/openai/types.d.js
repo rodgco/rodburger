@@ -42,3 +42,24 @@
  * @property {number} choices[].index - The index of the choice in the array.
  */
 
+/**
+ * Represents an assistant object.
+ *
+ * @typedef {Object} OpenAIAssistant
+ * @property {string} id - The ID of the assistant.
+ * @property {string} object - The type of object (e.g., "assistant").
+ * @property {number} created_at - The timestamp when the assistant was created.
+ * @property {string} name - The name of the assistant.
+ * @property {string|null} description - The description of the assistant, which can be null.
+ * @property {string} model - The model of the assistant (e.g., "gpt-4").
+ * @property {string} instructions - Instructions for the assistant.
+ * @property {Tool[]} tools - An array of tools used by the assistant.
+ * @property {string[]} file_ids - An array of file IDs associated with the assistant.
+ * @property {Object} metadata - Additional metadata about the assistant.
+ */
+
+/**
+ * Represents a tool used by the assistant.
+ * @typedef {Object} Tool
+ * @property {string} type - The type of the tool (e.g., "retrieval").
+ */
