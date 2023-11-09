@@ -27,7 +27,6 @@ interface Order {
 }
 
 Example:
-\`\`\`
 {
   complete: true,
   confirmed: true,
@@ -38,7 +37,7 @@ Example:
     { item: "coke", qty: 2}
   ]
 }
-\`\`\``
+`
 };
 
 /**
