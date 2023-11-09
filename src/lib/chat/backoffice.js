@@ -12,30 +12,69 @@ const systemMessage = {
 Extract the values from the conversation and format the order as a JSON.
 Do not translate the JSON field names. 
 Transform the message to the Chef into an imperative form.
+A complete order has the name of the customer, the message to the chef and at least one item.
 A confirmed order must be complete and confirmed by the customer.
 
-Don't include any other message, just the JSON. JSON must conform with this typescript interface:
-If the order is not complete, set \`complete\` to \`false\`.
-If the order is not confirmed, set \`confirmed\` to \`false\`.
+Don't include any other message, not even markdown annotation, just pure JSON. JSON must conform with this JSN schema:
 
-interface Order {
-  complete: boolean;
-  confirmed: boolean;
-  name?: string;
-  message?: string;
-  items?: {item: string; qty: number; extras?: string[]}[];
-}
-
-Example:
 {
-  complete: true,
-  confirmed: true,
-  name: "Joaquim",
-  message: "You're so beautiful",
-  items: [
-    { item: "burger", qty: 1, extras: ["bacon"] },
-    { item: "coke", qty: 2}
-  ]
+  "name": "expedite_order",
+  "description": "Expedite an order",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "complete": {
+        "type": "boolean",
+        "description": "Is the order complete?"
+      },
+      "confirmed": {
+        "type": "boolean",
+        "description": "The customer confirmed the order?"
+      },
+      "name": {
+        "type": "string",
+        "description": "The customer name"
+      },
+      "message": {
+        "type": "string",
+        "description": "The nice message to the Chef"
+      },
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string",
+              "description": "Item name"
+            },
+            "qty": {
+              "type": "integer",
+              "description": "Quantity of the item"
+            },
+            "extras": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Extras to the item"
+              }
+            }
+          },
+          "required": [
+            "item",
+            "qty"
+          ]
+        }
+      }
+    },
+    "required": [
+      "complete",
+      "confirmed",
+      "name",
+      "message",
+      "items"
+    ]
+  }
 }
 `
 };
