@@ -74,6 +74,7 @@ export default function createBackOffice(model = 'gpt-4-1106-preview') {
 		});
 
 		const isComplete = await conversation.callAPI(null, { temperature: 0.1 });
+    console.log('Backoffice',isComplete);
 
 		return JSON.parse(isComplete);
 	}
