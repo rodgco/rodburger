@@ -1,8 +1,9 @@
 <script>
-	import { store as settings, value } from '$lib/settings';
-  import '$lib/settings/types.d';
+	import settings from './store.svelte.js';
+  import value from './default.js';
+  import './types.d';
 
-	/** @type {SettingsData} */
+	/** @type {Partial<SettingsData>} */
 	let tempSettings = Object.assign(value);
 
 	/** @type {string} */
@@ -30,8 +31,8 @@
 
 	function openDialog() {
 		changeFlag = false;
-		tempSettings = { ...$settings };
-		defacedKey = defaceKey(tempSettings.secret_key);
+		tempSettings = { api_key: settings.api_key, model: settings.model  };
+		defacedKey = defaceKey(tempSettings.api_key || '');
 		show = true;
 		modal.showModal();
 	}
@@ -44,8 +45,8 @@
 	/** @type {import('svelte/elements').EventHandler<Event, HTMLFormElement>} */
 	function handleSubmit() {
     // 51 is the length of a key
-		if (changeFlag && defacedKey.length === 51) $settings.secret_key = defacedKey;
-		$settings.model = tempSettings.model;
+		if (changeFlag && defacedKey.length === 51) settings.api_key = defacedKey;
+		settings.model = tempSettings.model || value.model;
 	}
 
 	function toggleChange() {
@@ -74,7 +75,7 @@
 			/>
 			<h3>Settings</h3>
 			<!-- svelte-ignore a11y-autofocus -->
-			<input type="hidden" bind:value={tempSettings.secret_key} autofocus />
+			<input type="hidden" bind:value={tempSettings.api_key} />
 			<label
 				>OpenAI API Secret Key (<a
 					href="https://platform.openai.com/account/api-keys"

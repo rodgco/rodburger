@@ -1,6 +1,6 @@
 import component from './settings.svelte';
-import store from './store';
-import value from './default';
+import settings from './store.svelte.js';
+import value from './default.js';
 
 export default component;
-export { store, value };
+export { settings, value };

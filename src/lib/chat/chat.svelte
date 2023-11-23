@@ -1,72 +1,79 @@
 <script>
-  import Order from '$lib/components/order.svelte';
-  import Bubble from '$lib/components/bubble.svelte';
+	import Bubble from '$lib/components/bubble.svelte';
+	import { assistant, support } from './attendant.svelte.js';
+	import { settings } from '$lib/settings';
 
-  import conversation from './attendant.js';
-  import './types.d';
+	/** @type {HTMLInputElement} */
+	let input;
 
-  /** @type {HTMLInputElement} */
-  let input;
+	/** @type {HTMLButtonElement} */
+	let sendButton;
 
-  /** @type {HTMLButtonElement} */
-  let sendButton;
+	/** @type {boolean} */
+	let loading = $state(false);
 
-  /** @type {boolean} */
-  let loading = false;
+	/** @type {import('svelte/elements').FormEventHandler<HTMLFormElement>} */
+	async function sendMessage(e) {
+		e.preventDefault();
 
-  $: if (input && sendButton && ($conversation.status === 'closed' || loading)) {
-      input.disabled = true;
-      sendButton.disabled = true;
-    }
-  $: if (input && sendButton && $conversation.status === 'open' && !loading) {
-      input.disabled = false;
-      sendButton.disabled = false;
-    }
+		const form = /** @type {HTMLFormElement} */ (e.target);
 
-  /** @type {import('svelte/elements').FormEventHandler<HTMLFormElement>} */
-  async function sendMessage() {
-    input.disabled = true;
-    sendButton.disabled = true;
-    loading = true;
+		loading = true;
 
-    conversation.addMessage({ role: 'user', content: input.value });
+		await assistant.createUserMessage(input.value);
+		await assistant.run();
 
-    input.value = '';
+		loading = false;
 
-    await conversation.callAssistant();
+		form.reset();
+	}
 
-    loading = false;
+	$effect(() => {
+		if (!settings.closed && !loading) {
+			input.disabled = false;
+			sendButton.disabled = false;
+			input.focus();
+		} else {
+			input.disabled = true;
+			sendButton.disabled = true;
+		}
+	});
 
-    if ($conversation.status === 'open') {
-      input.disabled = false;
-      sendButton.disabled = false;
-      input.focus();
-    }
-  }
+  $effect(() => {
+    settings.thread_id = assistant.thread.id;
+  });
 
-  /**
-   * @param {number} index
-   */
-  function remove(index) {
-    conversation.removeMessage(index);
-  }
+  let kitchenCount = $derived(support.kitchen.length);
+  let suggestionCount = $derived(support.suggestions.length);;
+
+  $effect(() => {
+    console.log('kitchen', support.kitchen);
+    console.log('suggestions', support.suggestions);
+  });
+
+	/**
+	 * @param {number} index
+	 */
+	function remove(index) {
+		// TODO: remove message from conversation
+	}
 </script>
 
 <div id="chat">
-	<form on:submit|preventDefault={sendMessage}>
+  <div class="support">
+    <div>Kitchen ({kitchenCount})</div>
+    <div>Suggestions ({suggestionCount})</div>
+  </div>
+	<form on:submit={sendMessage}>
 		<!-- svelte-ignore a11y-autofocus -->
-		<input bind:this={input} type="text" name="message" autofocus required />
+		<input bind:this={input} type="text" name="message" required />
 
 		<button bind:this={sendButton} type="submit">Send</button>
 	</form>
 	<div id="bubblebox">
-		{#each $conversation.messages as message, index}
-			{#if message.content.startsWith('JSON:')}
-				<Order order={message.content} on:dblclick={() => remove(index)} />
-			{:else}
-				<Bubble role={message.role} on:dblclick={() => remove(index)}
-					>{@html message.content.replaceAll('\n', '<br>')}</Bubble
-				>
+		{#each assistant.messages as message}
+			{#if message.content[0].type === 'text'}
+				<Bubble role={message.role}>{@html message.content[0].text.value}</Bubble>
 			{/if}
 		{/each}
 		{#if loading}
@@ -98,4 +105,16 @@
 		margin: 0;
 		border-radius: var(--border-radius);
 	}
+  .support {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--secondary);
+  }
+  .support > div {
+    flex: 1 0 0;
+    display: flex;
+    justify-content: center;
+  }
 </style>
