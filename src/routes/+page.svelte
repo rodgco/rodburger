@@ -1,5 +1,5 @@
 <script>
-  import Chat from '$lib/chat';
+  import Chat from '$lib/chat/chat.svelte';
 </script>
 
 <main>

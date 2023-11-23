@@ -2,7 +2,9 @@ import './types.d';
 
 /** @type {SettingsData} */
 const value = {
-	secret_key: '',
+	api_key: '',
+  thread_id: '',
+  closed: false,
 	model: 'gpt-4-1106-preview'
 };
 

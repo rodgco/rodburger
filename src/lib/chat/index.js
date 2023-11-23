@@ -1,5 +1,5 @@
-import component from './chat.svelte';
-import store from './attendant.js';
+import Chat from './chat.svelte';
+import { assistant, support } from './attendant.svelte.js';
 
-export default component;
-export { store };
+export default Chat;
+export { assistant, support };
